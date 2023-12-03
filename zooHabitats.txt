@@ -1,0 +1,26 @@
+Created Habitat Enclosures
+New Animals to the Following Habitats.
+
+"Hyena Habitat"
+Hy01  Shenzi 4 years old, birthday is 2019-01-01, tancolor, sex is female, weight is  70 pounds
+Hy02  Banzai 12 years old, birthday is 2011-01-01, browncolor, sex is male, weight is  150 pounds
+Hy03  Ed 4 years old, birthday is 2019-01-01, blackcolor, sex is male, weight is  120 pounds
+Hy04  Zig 8 years old, birthday is 2015-01-01, blackandtanstripedcolor, sex is female, weight is  105 pounds
+
+"Lion Habitat"
+Li01  Scar 6 years old, birthday is 2017-01-01, tancolor, sex is female, weight is  300 pounds
+Li02  Mufasa 12 years old, birthday is 2011-01-01, darktancolor, sex is female, weight is  375 pounds
+Li03  Simba 22 years old, birthday is 2001-01-01, goldencolor, sex is male, weight is  450 pounds
+Li04  Kiara 4 years old, birthday is 2019-01-01, tanandbrowncolor, sex is female, weight is  275 pounds
+
+"Bear Habitat"
+Be01  Yogi 7 years old, birthday is 2016-01-01, browncolor, sex is male, weight is  320 pounds
+Be02  Smokey 25 years old, birthday is 1998-01-01, blackcolor, sex is female, weight is  425 pounds
+Be03  Paddington 4 years old, birthday is 2019-01-01, blackcolor, sex is female, weight is  355 pounds
+Be04  Lippy 4 years old, birthday is 2019-01-01, browncolor, sex is male, weight is  405 pounds
+
+"Tiger Habitat"
+Ti01  Amber 2 years old, birthday is 2021-01-01, goldandtanstripescolor, sex is male, weight is  270 pounds
+Ti02  Cosimia 4 years old, birthday is 2019-01-01, blackstripescolor, sex is female, weight is  400 pounds
+Ti03  Cuddles 18 years old, birthday is 2005-01-01, goldandtancolor, sex is male, weight is  300 pounds
+Ti04  Dave 3 years old, birthday is 2020-01-01, blackstripescolor, sex is female, weight is  285 pounds
