@@ -9,6 +9,7 @@
 import pygame
 from pygame.locals import *
 from tkinter import Tk, filedialog
+import subprocess
 import sys
 import datetime
 
@@ -18,7 +19,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
 screen_width = 1500
-screen_height = 1000
+screen_height = 800
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Zoo Habitat Management")
 
@@ -28,8 +29,6 @@ dialogue_font = pygame.font.Font(None, 24)
 start_button = pygame.Rect(50, 50, 150, 50)
 cancel_button = pygame.Rect(250, 50, 150, 50)
 submit_button = pygame.Rect(500, 50, 150, 50)
-
-checkboxes = []
 
 input_rect = pygame.Rect(50, 120, 700, 36)
 input_text = ""
@@ -45,6 +44,7 @@ class DialogueBox:
         self.font = font
         self.max_lines = initial_max_lines
         self.lines = []
+        self.total_lines = 0
         self.scroll_pos = 0
 
     def add_line(self, text):
@@ -57,10 +57,12 @@ class DialogueBox:
             else:
                 self.lines.append(current_line)
                 current_line = word + ' '
+                self.total_lines += 1
         self.lines.append(current_line)
+        self.total_lines += 1
 
         # Increase max_lines if needed
-        self.max_lines = max(len(self.lines), self.max_lines + 1)
+        self.max_lines = max(self.total_lines, self.max_lines + 1)
 
         while len(self.lines) > self.max_lines:
             self.lines.pop(0)
@@ -70,7 +72,7 @@ class DialogueBox:
         pygame.draw.rect(surface, BLACK, self.rect, 2)
 
         y_offset = 10
-        for line in self.lines:
+        for line in self.lines[self.scroll_pos:]:
             text_surface = self.font.render(line, True, BLACK)
             surface.blit(text_surface, (self.rect.x + 10, self.rect.y + y_offset))
             y_offset += self.font.get_linesize()
@@ -82,11 +84,12 @@ class DialogueBox:
     def scroll(self, direction):
         if direction == "up" and self.scroll_pos > 0:
             self.scroll_pos -= 1
-        elif direction == "down" and self.scroll_pos + self.max_lines < len(self.lines):
+        elif direction == "down" and self.scroll_pos + self.max_lines < self.total_lines:
             self.scroll_pos += 1
 
+
 # Create a dialogue box
-dialogue_box = DialogueBox(50, 200, 1300, 1200, dialogue_font, initial_max_lines=5)
+dialogue_box = DialogueBox(50, 100, 1300, 550, dialogue_font, initial_max_lines=5)
 
 def open_file_dialog():
     root = Tk()
@@ -100,9 +103,11 @@ def open_file_dialog():
 running = True
 def clear_lines(self):
     self.lines = []
-    dialogue_box.add_line("Welcome to Mac Mac's Interface for Creating Habitats. You will need two documents to begin.")
-    dialogue_box.add_line("(1st doc is for Animal details. 2nd doc is animal names. Press start to begin.)")
-    dialogue_box.add_line("*Be sure docs follow Zoo Habitat Dox Protocol found in instruction manual before submitting and reviewing Final Habitat Creation Document.")
+    dialogue_box.add_line("Welcome to Mac Mac's Interface for Creating Habitats. You will need two documents to begin. (1st doc is for animal details. 2nd doc is animal names.)")
+    dialogue_box.add_line("* Press start to begin.")
+    dialogue_box.add_line("* Press Cancel to Clear Data")
+    dialogue_box.add_line("* Press Submit to finalize and view new habitat data in Word Document zooHabitats.txt")
+    dialogue_box.add_line('*Important Note* Please ensure docs follow start order and Zoo Habitat Dox Protocol found in "Final Instructions" manual before submitting and reviewing Zoo Habitats document.')
 clear_lines(dialogue_box)
 
 ## Initializations snd functions
@@ -180,196 +185,203 @@ while running:
                 #dialogue_box.add_line(str(animals))
                 #dialogue_box.add_line(str(names))
                 #dialogue_box.add_line("Parsing Data...")
+                try:
+                    with open("zooHabitats.txt", "w") as output_file:
+                        output_file.write("Created Habitat Enclosures\n")
+                        output_file.write("New Animals to the Following Habitats.\n")
 
-                with open("zooHabitats.txt", "w") as output_file:
-                    output_file.write("Created Habitat Enclosures\n")
-                    output_file.write("New Animals to the Following Habitats.\n")
+                        current_date = datetime.date.today()
+                        in_taking_date = current_date - datetime.timedelta(days=7)
+                        pre_quart_date = current_date - datetime.timedelta(days=4 * 30 + 12)
 
-                    current_date = datetime.date.today()
-                    in_taking_date = current_date - datetime.timedelta(days=7)
-                    pre_quart_date = current_date - datetime.timedelta(days=4 * 30 + 12)
-
-                    years_old = 0
-                    num_of_hyenas = 0
-                    num_of_lions = 0
-                    num_of_tigers = 0
-                    num_of_bears = 0
-                    j = 0
-                    index_key = 0
-                    end_key = 0
-                    #### Habitat and Name list array
-                    data_names = names.replace(": \n", ", ").replace("\n\n", ", ").split(",", 52)
-                    dialogue_box.add_line(str(data_names))
-                    dialogue_box.add_line("\n")
-                    ##### Data for Animals too refactor later.
-                    data_animals = str(animals).replace("Tunisia\n", "Tunisia").replace("Tanzania\n",
-                                                                                        "Tanzania").replace(
-                        "Bangladesh\n", "Bangladesh").replace("Nepal\n", "Nepal").replace("Alaska \n", "Alaska")
-                    #dialogue_box.add_line(data_animals)
-                    dialogue_box.add_line("\n")
-                    #### Split and Append + Format for Habitat and Names
-                    for j in range(12):
-                        if j < len(data_names):
-                            if data_names[j].strip() == "Hyena Habitat":
-                                habs[0] = data_names[j].strip()
-                            else:
-                                hyenas[j] = data_names[j]
-
-                    dialogue_box.add_line(f"These names are for {habs[0]}:")
-                    for j in range(5):
-                        if hyenas[j] is not None:
-                            dialogue_box.add_line(hyenas[j])
-                    for j in range(12, 25):
-                        if j < len(data_names):
-                            if data_names[j].strip() == "Lion Habitat":
-                                habs[1] = data_names[j].strip()
-                            else:
-                                lions[j - 13] = data_names[j]
-
-                    dialogue_box.add_line(f"These names are for {habs[1]}:")
-                    for j in range(13, 17):
-                        if lions[j - 13] is not None:
-                            dialogue_box.add_line(lions[j - 13])
-
-                    for j in range(25, 36):
-                        if j < len(data_names):
-                            if data_names[j].strip() == "Bear Habitat":
-                                habs[2] = data_names[j].strip()
-                            else:
-                                bears[j - 26] = data_names[j]
-
-                    dialogue_box.add_line(f"These names are for {habs[2]}:")
-                    for j in range(26, 30):
-                        if bears[j - 26] is not None:
-                            dialogue_box.add_line(bears[j - 26])
-
-                    for j in range(36, 47):
-                        if j < len(data_names):
-                            if data_names[j].strip() == "Tiger Habitat":
-                                habs[3] = data_names[j].strip()
-                            else:
-                                tigers[j - 39] = data_names[j]
-
-                    dialogue_box.add_line(f"These names are for {habs[3]}:")
-                    for j in range(39, 43):
-                        if tigers[j - 39] is not None:
-                            dialogue_box.add_line(tigers[j - 39])
-                    #### Split Animals Doc to Initialized and declared variables for doc write-in
-                    for i in range(16):
-                        split_animals = animals[i].split()
-                        split_str_comma = animals[i].split(",")
-                        ##### Split Data Variables
+                        years_old = 0
+                        num_of_hyenas = 0
+                        num_of_lions = 0
+                        num_of_tigers = 0
+                        num_of_bears = 0
+                        j = 0
+                        index_key = 0
+                        end_key = 0
+                        #### Habitat and Name list array
+                        data_names = names.replace(": \n", ", ").replace("\n\n", ", ").split(",", 52)
+                        dialogue_box.add_line(str(data_names))
                         dialogue_box.add_line("\n")
-                        years_old = int(split_animals[0])
-                        season = split_animals[7]
-                        species = split_str_comma[0].split()[4]
-                        birthdate = gen_birth_day(years_old, season)
-                        sex = split_animals[3]
-                        color = split_str_comma[2]
-                        weight = split_str_comma[3]
-                        origin = split_str_comma[4] + "," + split_str_comma[5]
-                        ##### List for individual animal.
-                        if species == "hyena":
-                            num_of_hyenas += 1
-                            unique_id = gen_unique_id(species, num_of_hyenas)
-                            animal = {
-                                "id": unique_id,
-                                "name": hyenas[num_of_hyenas],
-                                "birthday": birthdate,
-                                "color": color.replace(" ", ""),
-                                "sex": sex.replace(" ", ""),
-                                "weight": weight.replace("  ", " "),
-                                "arrival": current_date,
-                                "age": years_old
-                            }
-                            dialogue_box.add_line(
-                                f"{animal['id']}: {animal['name']}\n{animal['age']} years old {animal['sex']}.\nBirthday: {animal['birthday']}\n{animal['color']} {animal['weight']}\nArrival {animal['arrival']}")
-                            hyena_habitat.append(animal)
-                        elif species == "lion":
-                            num_of_lions += 1
-                            unique_id = gen_unique_id(species, num_of_lions)
-                            animal = {
-                                "id": unique_id,
-                                "name": lions[num_of_lions - 1],
-                                "birthday": birthdate,
-                                "color": color.replace(" ", ""),
-                                "sex": sex.replace(" ", ""),
-                                "weight": weight.replace("  ", " "),
-                                "arrival": current_date,
-                                "age": years_old
-                            }
-                            dialogue_box.add_line(
-                                f"{animal['id']}: {animal['name']}\n{animal['age']} years old {animal['sex']}.\nBirthday: {animal['birthday']}\n{animal['color']} {animal['weight']}\nArrival {animal['arrival']}")
-                            lion_habitat.append(animal)
-                        elif species == "tiger":
-                            num_of_tigers += 1
-                            unique_id = gen_unique_id(species, num_of_tigers)
-                            animal = {
-                                "id": unique_id,
-                                "name": tigers[num_of_tigers - 1],
-                                "birthday": birthdate,
-                                "color": color.replace(" ", ""),
-                                "sex": sex.replace(" ", ""),
-                                "weight": weight.replace("  ", " "),
-                                "arrival": current_date,
-                                "age": years_old
-                            }
-                            dialogue_box.add_line(
-                                f"{animal['id']}: {animal['name']}\n{animal['age']} years old {animal['sex']}.\nBirthday: {animal['birthday']}\n{animal['color']} {animal['weight']}\nArrival {animal['arrival']}")
-                            tiger_habitat.append(animal)
-                        elif species == "bear":
-                            num_of_bears += 1
-                            unique_id = gen_unique_id(species, num_of_bears)
-                            animal = {
-                                "id": unique_id,
-                                "name": bears[num_of_bears - 1],
-                                "birthday": birthdate,
-                                "color": color.replace(" ", ""),
-                                "sex": sex.replace(" ", ""),
-                                "weight": weight.replace("  ", " "),
-                                "arrival": current_date,
-                                "age": years_old
-                            }
-                            dialogue_box.add_line(
-                                f"{animal['id']}: {animal['name']}\n{animal['age']} years old {animal['sex']}.\nBirthday: {animal['birthday']}\n{animal['color']} {animal['weight']}\nArrival {animal['arrival']}")
-                            bear_habitat.append(animal)
+                        ##### Data for Animals too refactor later.
+                        data_animals = str(animals).replace("Tunisia\n", "Tunisia").replace("Tanzania\n",
+                                                                                            "Tanzania").replace(
+                            "Bangladesh\n", "Bangladesh").replace("Nepal\n", "Nepal").replace("Alaska \n", "Alaska")
+                        #dialogue_box.add_line(data_animals)
                         dialogue_box.add_line("\n")
+                        #### Split and Append + Format for Habitat and Names
+                        for j in range(12):
+                            if j < len(data_names):
+                                if data_names[j].strip() == "Hyena Habitat":
+                                    habs[0] = data_names[j].strip()
+                                else:
+                                    hyenas[j] = data_names[j]
 
-                    dialogue_box.add_line(f"numOfHyenas = {num_of_hyenas}")
-                    dialogue_box.add_line(f"numOfLions = {num_of_lions}")
-                    dialogue_box.add_line(f"numOfTigers = {num_of_tigers}")
-                    dialogue_box.add_line(f"numOfBears = {num_of_bears}")
+                        dialogue_box.add_line(f"These names are for {habs[0]}:")
+                        for j in range(5):
+                            if hyenas[j] is not None:
+                                dialogue_box.add_line(hyenas[j])
+                        for j in range(12, 25):
+                            if j < len(data_names):
+                                if data_names[j].strip() == "Lion Habitat":
+                                    habs[1] = data_names[j].strip()
+                                else:
+                                    lions[j - 13] = data_names[j]
 
-                    # dialogue_box.add_lineing linked lists
-                    output_file.write(f'\n"{habs[0]}"\n')
-                    for animal in hyena_habitat:
-                        output_file.write(
-                            f"{animal['id']} {animal['name']} {animal['age']} years old, birthday is {animal['birthday']}, {animal['color']}, sex is {animal['sex']}, weight is {animal['weight']}\n")
+                        dialogue_box.add_line(f"These names are for {habs[1]}:")
+                        for j in range(13, 17):
+                            if lions[j - 13] is not None:
+                                dialogue_box.add_line(lions[j - 13])
 
-                    output_file.write(f'\n"{habs[1]}"\n')
-                    for animal in lion_habitat:
-                        output_file.write(
-                            f"{animal['id']} {animal['name']} {animal['age']} years old, birthday is {animal['birthday']}, {animal['color']}, sex is {animal['sex']}, weight is {animal['weight']}\n")
+                        for j in range(25, 36):
+                            if j < len(data_names):
+                                if data_names[j].strip() == "Bear Habitat":
+                                    habs[2] = data_names[j].strip()
+                                else:
+                                    bears[j - 26] = data_names[j]
 
-                    output_file.write(f'\n"{habs[2]}"\n')
-                    for animal in bear_habitat:
-                        output_file.write(
-                            f"{animal['id']} {animal['name']} {animal['age']} years old, birthday is {animal['birthday']}, {animal['color']}, sex is {animal['sex']}, weight is {animal['weight']}\n")
+                        dialogue_box.add_line(f"These names are for {habs[2]}:")
+                        for j in range(26, 30):
+                            if bears[j - 26] is not None:
+                                dialogue_box.add_line(bears[j - 26])
 
-                    output_file.write(f'\n"{habs[3]}"\n')
-                    for animal in tiger_habitat:
-                        output_file.write(
-                            f"{animal['id']} {animal['name']} {animal['age']} years old, birthday is {animal['birthday']}, {animal['color']}, sex is {animal['sex']}, weight is {animal['weight']}\n")
+                        for j in range(36, 47):
+                            if j < len(data_names):
+                                if data_names[j].strip() == "Tiger Habitat":
+                                    habs[3] = data_names[j].strip()
+                                else:
+                                    tigers[j - 39] = data_names[j]
 
+                        dialogue_box.add_line(f"These names are for {habs[3]}:")
+                        for j in range(39, 43):
+                            if tigers[j - 39] is not None:
+                                dialogue_box.add_line(tigers[j - 39])
+                        #### Split Animals Doc to Initialized and declared variables for doc write-in
+                        for i in range(16):
+                            split_animals = animals[i].split()
+                            split_str_comma = animals[i].split(",")
+                            ##### Split Data Variables
+                            dialogue_box.add_line("\n")
+                            years_old = int(split_animals[0])
+                            season = split_animals[7]
+                            species = split_str_comma[0].split()[4]
+                            birthdate = gen_birth_day(years_old, season)
+                            sex = split_animals[3]
+                            color = split_str_comma[2]
+                            weight = split_str_comma[3]
+                            origin = split_str_comma[4] + "," + split_str_comma[5]
+                            ##### List for individual animal.
+                            if species == "hyena":
+                                num_of_hyenas += 1
+                                unique_id = gen_unique_id(species, num_of_hyenas)
+                                animal = {
+                                    "id": unique_id,
+                                    "name": hyenas[num_of_hyenas],
+                                    "birthday": birthdate,
+                                    "color": color.replace(" ", ""),
+                                    "sex": sex.replace(" ", ""),
+                                    "weight": weight.replace("  ", " "),
+                                    "arrival": current_date,
+                                    "age": years_old
+                                }
+                                dialogue_box.add_line(
+                                    f"{animal['id']}: {animal['name']}\n{animal['age']} years old {animal['sex']}.\nBirthday: {animal['birthday']}\n{animal['color']} {animal['weight']}\nArrival {animal['arrival']}")
+                                hyena_habitat.append(animal)
+                            elif species == "lion":
+                                num_of_lions += 1
+                                unique_id = gen_unique_id(species, num_of_lions)
+                                animal = {
+                                    "id": unique_id,
+                                    "name": lions[num_of_lions - 1],
+                                    "birthday": birthdate,
+                                    "color": color.replace(" ", ""),
+                                    "sex": sex.replace(" ", ""),
+                                    "weight": weight.replace("  ", " "),
+                                    "arrival": current_date,
+                                    "age": years_old
+                                }
+                                dialogue_box.add_line(
+                                    f"{animal['id']}: {animal['name']}\n{animal['age']} years old {animal['sex']}.\nBirthday: {animal['birthday']}\n{animal['color']} {animal['weight']}\nArrival {animal['arrival']}")
+                                lion_habitat.append(animal)
+                            elif species == "tiger":
+                                num_of_tigers += 1
+                                unique_id = gen_unique_id(species, num_of_tigers)
+                                animal = {
+                                    "id": unique_id,
+                                    "name": tigers[num_of_tigers - 1],
+                                    "birthday": birthdate,
+                                    "color": color.replace(" ", ""),
+                                    "sex": sex.replace(" ", ""),
+                                    "weight": weight.replace("  ", " "),
+                                    "arrival": current_date,
+                                    "age": years_old
+                                }
+                                dialogue_box.add_line(
+                                    f"{animal['id']}: {animal['name']}\n{animal['age']} years old {animal['sex']}.\nBirthday: {animal['birthday']}\n{animal['color']} {animal['weight']}\nArrival {animal['arrival']}")
+                                tiger_habitat.append(animal)
+                            elif species == "bear":
+                                num_of_bears += 1
+                                unique_id = gen_unique_id(species, num_of_bears)
+                                animal = {
+                                    "id": unique_id,
+                                    "name": bears[num_of_bears - 1],
+                                    "birthday": birthdate,
+                                    "color": color.replace(" ", ""),
+                                    "sex": sex.replace(" ", ""),
+                                    "weight": weight.replace("  ", " "),
+                                    "arrival": current_date,
+                                    "age": years_old
+                                }
+                                dialogue_box.add_line(
+                                    f"{animal['id']}: {animal['name']}\n{animal['age']} years old {animal['sex']}.\nBirthday: {animal['birthday']}\n{animal['color']} {animal['weight']}\nArrival {animal['arrival']}")
+                                bear_habitat.append(animal)
+                            dialogue_box.add_line("\n")
+
+                        dialogue_box.add_line(f"numOfHyenas = {num_of_hyenas}")
+                        dialogue_box.add_line(f"numOfLions = {num_of_lions}")
+                        dialogue_box.add_line(f"numOfTigers = {num_of_tigers}")
+                        dialogue_box.add_line(f"numOfBears = {num_of_bears}")
+
+                        # dialogue_box.add_lineing linked lists
+                        output_file.write(f'\n"{habs[0]}"\n')
+                        for animal in hyena_habitat:
+                            output_file.write(
+                                f"{animal['id']} {animal['name']} {animal['age']} years old, birthday is {animal['birthday']}, {animal['color']}, sex is {animal['sex']}, weight is {animal['weight']}\n")
+
+                        output_file.write(f'\n"{habs[1]}"\n')
+                        for animal in lion_habitat:
+                            output_file.write(
+                                f"{animal['id']} {animal['name']} {animal['age']} years old, birthday is {animal['birthday']}, {animal['color']}, sex is {animal['sex']}, weight is {animal['weight']}\n")
+
+                        output_file.write(f'\n"{habs[2]}"\n')
+                        for animal in bear_habitat:
+                            output_file.write(
+                                f"{animal['id']} {animal['name']} {animal['age']} years old, birthday is {animal['birthday']}, {animal['color']}, sex is {animal['sex']}, weight is {animal['weight']}\n")
+
+                        output_file.write(f'\n"{habs[3]}"\n')
+                        for animal in tiger_habitat:
+                            output_file.write(
+                                f"{animal['id']} {animal['name']} {animal['age']} years old, birthday is {animal['birthday']}, {animal['color']}, sex is {animal['sex']}, weight is {animal['weight']}\n")
+                except:
+                    dialogue_box.add_line("Data Parse Error: Please press cancel and try again.")
+                    break
             elif cancel_button.collidepoint(event.pos):
                 clear_lines(dialogue_box)
             elif submit_button.collidepoint(event.pos):
-                zoo_habitats = open_file_dialog()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if submit_button.collidepoint(event.pos):
+                        file_path = open_file_dialog()
+                        if file_path:
+                            subprocess.Popen(["start", "cmd", "/c", file_path], shell=True)
         # Check for mouse wheel events to scroll the dialogue box
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 4:
-            dialogue_box.scroll("up")
-        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 5:
-            dialogue_box.scroll("down")
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 4:  # Scroll up
+                dialogue_box.scroll("up")
+            elif event.button == 5:  # Scroll down
+                dialogue_box.scroll("down")
 
     pygame.draw.rect(screen, (0, 128, 255), start_button)
     pygame.draw.rect(screen, (255, 0, 0), cancel_button)
@@ -381,12 +393,6 @@ while running:
     screen.blit(start_text, (start_button.x + 50, start_button.y + 10))
     screen.blit(cancel_text, (cancel_button.x + 40, cancel_button.y + 10))
     screen.blit(submit_text, (submit_button.x + 40, submit_button.y + 10))
-
-    pygame.draw.rect(screen, BLACK, input_rect, 2)
-    text_surface = font.render(input_text, True, BLACK)
-    width = max(200, text_surface.get_width()+10)
-    input_rect.w = width
-    screen.blit(text_surface, (input_rect.x+5, input_rect.y+5))
 
     dialogue_box.render(screen)
 
